@@ -1,10 +1,10 @@
 
 #include <stdio.h>
 
-#include <typedef.h>
-#include <encoding.h>
-#include <buffer.h>
-#include <command.h>
+#include "typedef.h"
+#include "encoding.h"
+#include "buffer.h"
+#include "command.h"
 #include "point.h"
 
 point_t *newPoint(FILE *r, FILE *w){

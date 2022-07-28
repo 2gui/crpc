@@ -13,6 +13,22 @@
 					"shell_cmd": "make -j8 clean",
 				},
 				{
+					"name": "install",
+					"shell_cmd": "make -j8 install",
+				},
+				{
+					"name": "install/local",
+					"shell_cmd": "make -j8 install/local",
+				},
+				{
+					"name": "install/strip",
+					"shell_cmd": "make -j8 install/strip",
+				},
+				{
+					"name": "list_install_components",
+					"shell_cmd": "make -j8 list_install_components",
+				},
+				{
 					"name": "rebuild_cache",
 					"shell_cmd": "make -j8 rebuild_cache",
 				},
@@ -94,19 +110,19 @@
 				},
 				{
 					"name": "src/sign.s",
-					"shell_cmd": "make -j8 src/sign.s",
+					"shell_cmd": "make -j8 src/sign.s"
 				},
 				{
 					"name": "src/typedef.o",
-					"shell_cmd": "make -j8 src/typedef.o",
+					"shell_cmd": "make -j8 src/typedef.o"
 				},
 				{
 					"name": "src/typedef.i",
-					"shell_cmd": "make -j8 src/typedef.i",
+					"shell_cmd": "make -j8 src/typedef.i"
 				},
 				{
 					"name": "src/typedef.s",
-					"shell_cmd": "make -j8 src/typedef.s",
+					"shell_cmd": "make -j8 src/typedef.s"
 				},
 			],
 			"working_dir": "${project_path}/build",

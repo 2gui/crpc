@@ -2,7 +2,7 @@
 #ifndef __ENCODING_H__
 #define __ENCODING_H__
 
-#include <typedef.h>
+#include "typedef.h"
 
 void encodeUint16(uint8_t *buf, uint16_t v);
 void encodeUint32(uint8_t *buf, uint32_t v);

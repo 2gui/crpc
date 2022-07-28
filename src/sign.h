@@ -2,7 +2,7 @@
 #ifndef __SIGN_H__
 #define __SIGN_H__
 
-#include <buffer.h>
+#include "buffer.h"
 
 enum SignCh{
 	pointer = '*',

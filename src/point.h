@@ -4,10 +4,10 @@
 
 #include <stdio.h>
 
-#include <typedef.h>
-#include <buffer.h>
-#include <context.h>
-#include <command.h>
+#include "typedef.h"
+#include "buffer.h"
+#include "context.h"
+#include "command.h"
 
 typedef struct{
 	const char *sign;

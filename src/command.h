@@ -3,7 +3,8 @@
 #define __COMMAND_H__
 
 #include <stdio.h>
-#include <buffer.h>
+
+#include "buffer.h"
 
 const uint8_t CmdPing;
 const uint8_t CmdPong;

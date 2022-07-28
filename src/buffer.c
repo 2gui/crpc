@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <encoding.h>
-#include <typedef.h>
+#include "encoding.h"
+#include "typedef.h"
 #include "buffer.h"
 
 Buffer makeBuffer(size_t size, size_t cap){

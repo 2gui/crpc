@@ -3,7 +3,8 @@
 #define __BUFFER_H__
 
 #include <stdio.h>
-#include <typedef.h>
+
+#include "typedef.h"
 
 typedef struct{
 	size_t size;

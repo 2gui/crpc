@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <strings.h>
 
-#include <typedef.h>
+#include "typedef.h"
 #include "encoding.h"
 
 void encodeUint16(uint8_t *buf, uint16_t v){

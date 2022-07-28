@@ -1,9 +1,9 @@
 
 #include <stdio.h>
 
-#include <typedef.h>
-#include <encoding.h>
-#include <buffer.h>
+#include "typedef.h"
+#include "encoding.h"
+#include "buffer.h"
 #include "sign.h"
 
 size_t get_size(enum SignCh t){

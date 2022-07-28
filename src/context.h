@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <typedef.h>
+#include "typedef.h"
 
 struct point_t;
 

@@ -2,10 +2,10 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include <encoding.h>
-#include <buffer.h>
-#include <sign.h>
-#include <point.h>
+#include "encoding.h"
+#include "buffer.h"
+#include "sign.h"
+#include "point.h"
 #include "command.h"
 
 const uint8_t CmdPing   = 0x00;
