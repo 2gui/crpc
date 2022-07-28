@@ -1,0 +1,131 @@
+{
+    "build_systems":
+    [
+        {
+			"file_regex": "(.+[^:]):(\\d+):(\\d+): (?:fatal )?((?:error|warning): .+)$",
+			"name": "crpc (OSX)",
+			"shell_cmd": "make -j8",
+			"syntax": "Packages/CMakeBuilder/Syntax/Make.sublime-syntax",
+			"variants":
+			[
+				{
+					"name": "clean",
+					"shell_cmd": "make -j8 clean",
+				},
+				{
+					"name": "rebuild_cache",
+					"shell_cmd": "make -j8 rebuild_cache",
+				},
+				{
+					"name": "Crpc",
+					"shell_cmd": "make -j8 Crpc",
+				},
+				{
+					"name": "example_server",
+					"shell_cmd": "make -j8 example_server",
+				},
+				{
+					"name": "src/buffer.o",
+					"shell_cmd": "make -j8 src/buffer.o",
+				},
+				{
+					"name": "src/buffer.i",
+					"shell_cmd": "make -j8 src/buffer.i",
+				},
+				{
+					"name": "src/buffer.s",
+					"shell_cmd": "make -j8 src/buffer.s",
+				},
+				{
+					"name": "src/command.o",
+					"shell_cmd": "make -j8 src/command.o",
+				},
+				{
+					"name": "src/command.i",
+					"shell_cmd": "make -j8 src/command.i",
+				},
+				{
+					"name": "src/command.s",
+					"shell_cmd": "make -j8 src/command.s",
+				},
+				{
+					"name": "src/context.o",
+					"shell_cmd": "make -j8 src/context.o",
+				},
+				{
+					"name": "src/context.i",
+					"shell_cmd": "make -j8 src/context.i",
+				},
+				{
+					"name": "src/context.s",
+					"shell_cmd": "make -j8 src/context.s",
+				},
+				{
+					"name": "src/encoding.o",
+					"shell_cmd": "make -j8 src/encoding.o",
+				},
+				{
+					"name": "src/encoding.i",
+					"shell_cmd": "make -j8 src/encoding.i",
+				},
+				{
+					"name": "src/encoding.s",
+					"shell_cmd": "make -j8 src/encoding.s",
+				},
+				{
+					"name": "src/point.o",
+					"shell_cmd": "make -j8 src/point.o",
+				},
+				{
+					"name": "src/point.i",
+					"shell_cmd": "make -j8 src/point.i",
+				},
+				{
+					"name": "src/point.s",
+					"shell_cmd": "make -j8 src/point.s",
+				},
+				{
+					"name": "src/sign.o",
+					"shell_cmd": "make -j8 src/sign.o",
+				},
+				{
+					"name": "src/sign.i",
+					"shell_cmd": "make -j8 src/sign.i",
+				},
+				{
+					"name": "src/sign.s",
+					"shell_cmd": "make -j8 src/sign.s",
+				},
+				{
+					"name": "src/typedef.o",
+					"shell_cmd": "make -j8 src/typedef.o"
+				},
+				{
+					"name": "src/typedef.i",
+					"shell_cmd": "make -j8 src/typedef.i"
+				},
+				{
+					"name": "src/typedef.s",
+					"shell_cmd": "make -j8 src/typedef.s"
+				},
+			],
+			"working_dir": "${project_path}/build",
+		},
+	],
+    "folders":
+    [
+        {
+            "path": ".",
+        },
+		{
+			"path": "/Users/ckpn/Mine/projects/golang/src/github.com/2gui/rpc",
+		},
+	],
+    "settings":
+    {
+        "cmake":
+        {
+            "build_folder": "${project_path}/build",
+        },
+    },
+}
