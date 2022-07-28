@@ -98,15 +98,15 @@
 				},
 				{
 					"name": "src/typedef.o",
-					"shell_cmd": "make -j8 src/typedef.o"
+					"shell_cmd": "make -j8 src/typedef.o",
 				},
 				{
 					"name": "src/typedef.i",
-					"shell_cmd": "make -j8 src/typedef.i"
+					"shell_cmd": "make -j8 src/typedef.i",
 				},
 				{
 					"name": "src/typedef.s",
-					"shell_cmd": "make -j8 src/typedef.s"
+					"shell_cmd": "make -j8 src/typedef.s",
 				},
 			],
 			"working_dir": "${project_path}/build",
@@ -114,11 +114,8 @@
 	],
     "folders":
     [
-        {
-            "path": ".",
-        },
 		{
-			"path": "/Users/ckpn/Mine/projects/golang/src/github.com/2gui/rpc",
+			"path": ".",
 		},
 	],
     "settings":
