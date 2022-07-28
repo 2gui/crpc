@@ -110,15 +110,15 @@
 				},
 				{
 					"name": "src/sign.s",
-					"shell_cmd": "make -j8 src/sign.s"
+					"shell_cmd": "make -j8 src/sign.s",
 				},
 				{
 					"name": "src/typedef.o",
-					"shell_cmd": "make -j8 src/typedef.o"
+					"shell_cmd": "make -j8 src/typedef.o",
 				},
 				{
 					"name": "src/typedef.i",
-					"shell_cmd": "make -j8 src/typedef.i"
+					"shell_cmd": "make -j8 src/typedef.i",
 				},
 				{
 					"name": "src/typedef.s",

@@ -1,8 +1,7 @@
 
 #include <stdio.h>
 
-#include <context.h>
-#include <point.h>
+#include <Crpc.h>
 
 int helloWorld(rpc_context *ctx){
 	printf("returning hello world\n");
