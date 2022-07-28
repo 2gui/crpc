@@ -17,11 +17,15 @@ enum SignCh{
 	int32 = 'l',
 	int64 = 'q',
 	float32 = 'F',
-	float64 = 'D'
+	float64 = 'D',
+	string = 'S',
 };
 
-size_t writeValue(FILE *fd, const char *sign, const any_t val);
-size_t writeValueBuf(Buffer *b, const char *sign, const any_t val);
+size_t get_size(enum SignCh t);
+size_t signCount(const char *sign);
+
+size_t writeValue(FILE *fd, const char *sign, any_t val);
+size_t writeValueBuf(Buffer *b, const char *sign, any_t val);
 
 size_t readValue0(FILE *fd, const char **sign, any_t val);
 size_t readValue(FILE *fd, const char *sign, any_t val);

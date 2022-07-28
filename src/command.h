@@ -46,8 +46,13 @@ typedef struct{
 } ReturnCmd;
 cmd_interface wrapReturnCmd(ReturnCmd *p);
 
+const uint16_t ErrString;
+const uint16_t ErrNotExists;
+const uint16_t ErrArgs;
+
 typedef struct{
 	uint32_t sesid;
+	uint16_t errid;
 	const char *err;
 } ErrorCmd;
 cmd_interface wrapErrorCmd(ErrorCmd *p);

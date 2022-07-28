@@ -68,12 +68,25 @@ void writeFloat64Buf(Buffer *b, float64_t v){
 	b->size += 8;
 }
 
-void putStringBuf(Buffer *b, const char *s){
+size_t writeStringBuf(Buffer *b, const char *s){
+	const size_t l = strlen(s);
+	writeUint32Buf(b, (uint32_t)(l));
+	if(l){
+		growBuffer(b, l);
+		memcpy(b->p + b->size, s, l);
+		b->size += l;
+	}
+	return 4 + l;
+}
+
+size_t putStringBuf(Buffer *b, const char *s){
 	const size_t l = strlen(s);
 	if(l){
 		growBuffer(b, l);
-		memcpy(b->p, s, l);
+		memcpy(b->p + b->size, s, l);
+		b->size += l;
 	}
+	return l;
 }
 
 size_t writeBufTo(Buffer *b, FILE *fd){

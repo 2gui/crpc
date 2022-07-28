@@ -8,20 +8,23 @@
 #include "point.h"
 
 point_t *newPoint(FILE *r, FILE *w){
+	setvbuf(r, NULL, _IONBF, 0);
+	setvbuf(w, NULL, _IONBF, 0);
 	point_t *p = malloc(sizeof(point_t)), _p = {
 		.r = r,
 		.w = w,
 		.flag = FALSE,
-		.funcs = malloc(sizeof(slice_t)),
+		.funcs = makeSlice(rpc_callback, 0, 8),
 		.cmds = {NULL},
 	};
 	*p = _p;
-	*p->funcs = makeSlice(rpc_callback, 0, 8);
+	p->cmds[CmdPing] = parsePingCmd;
+	p->cmds[CmdCall] = parseCallCmd;
 	return p;
 }
 
 int pointRegisterMethod(point_t *p, const char *name, const char *sign, rpc_callback cb){
-	uint32_t id = p->funcs->size;
+	uint32_t id = p->funcs.size;
 	func_t func = {
 		.sign = sign,
 		.cb = cb,
@@ -39,8 +42,8 @@ int pointSendCommand(point_t *p, uint8_t id, cmd_interface cmd){
 	Buffer *buf = &_buf;
 	writeUint8Buf(buf, id);
 	cmd.m->writeTo(cmd.p, buf);
-	writeUint32(p->w, (uint32_t)(buf->size));
-	writeBufTo(buf, p->w);
+	size_t n = writeUint32(p->w, (uint32_t)(buf->size));
+	n += writeBufTo(buf, p->w);
 	return 0;
 }
 
@@ -55,6 +58,8 @@ int pointListen(point_t *p){
 		}
 		readUint8(p->r, &id);
 		CmdParser cp = p->cmds[id];
-		cp(p->r, p);
+		if(cp != NULL){
+			cp(p->r, p);
+		}
 	}
 }

@@ -35,4 +35,7 @@ size_t readFloat64(FILE *fd, float64_t *v);
 size_t writeString(FILE *fd, const char *v);
 size_t writeBytes(FILE *fd, const uint8_t *v, size_t size);
 
+size_t readString(FILE *fd, char **v);
+size_t readBytes(FILE *fd, uint8_t **v, size_t *size);
+
 #endif // __ENCODING_H__

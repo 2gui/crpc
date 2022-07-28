@@ -23,8 +23,9 @@ void writeUint32Buf(Buffer *b, uint32_t v);
 void writeUint64Buf(Buffer *b, uint64_t v);
 void writeFloat32Buf(Buffer *b, float32_t v);
 void writeFloat64Buf(Buffer *b, float64_t v);
+size_t writeStringBuf(Buffer *b, const char *s);
 
-void putStringBuf(Buffer *b, const char *s);
+size_t putStringBuf(Buffer *b, const char *s);
 size_t writeBufTo(Buffer *b, FILE *fd);
 size_t readBufFrom(Buffer *b, FILE *fd, size_t size);
 

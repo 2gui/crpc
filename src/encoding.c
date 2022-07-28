@@ -164,3 +164,19 @@ size_t writeBytes(FILE *fd, const uint8_t *v, size_t size){
 	n += fwrite(v, 1, size, fd);
 	return n;
 }
+
+size_t readString(FILE *fd, char **v){
+	uint32_t size;
+	size_t n = readUint32(fd, &size);
+	n += fread(*v = malloc(size + 1), 1, size, fd);
+	*(*v + size) = 0;
+	return n;
+}
+
+size_t readBytes(FILE *fd, uint8_t **v, size_t *size){
+	uint32_t _sz;
+	size_t n = readUint32(fd, &_sz);
+	*size = _sz;
+	n += fread(*v = malloc(_sz), 1, _sz, fd);
+	return n;
+}

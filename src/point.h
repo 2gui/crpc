@@ -20,7 +20,7 @@ typedef int (*CmdParser)(FILE *r, struct point_t *p);
 typedef struct point_t{
 	FILE *r, *w;
 	bool_t flag;
-	slice_t *funcs;
+	slice_t funcs;
 	CmdParser cmds[256];
 } point_t;
 
