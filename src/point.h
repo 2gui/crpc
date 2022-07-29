@@ -9,12 +9,6 @@
 #include "context.h"
 #include "command.h"
 
-typedef struct{
-	const char *sign;
-	const char *retsign;
-	rpc_callback cb;
-} func_t;
-
 typedef int (*CmdParser)(FILE *r, struct point_t *p);
 
 typedef struct point_t{

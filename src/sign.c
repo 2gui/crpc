@@ -62,21 +62,27 @@ size_t signCount(const char *sign){
 
 size_t writeValue(FILE *fd, const char *sign, any_t val){
 	switch((enum SignCh)(*sign++)){
-	case pointer:
-		switch((enum SignCh)(*sign)){
-		case pointer:
-		case string:
-			val = cast_any(val, any_t);
-			break;
-		default:;
+	case pointer:{
+		bool_t ok = val != NULL;
+		size_t n = writeBool(fd, ok);
+		if(ok){
+			switch((enum SignCh)(*sign)){
+			case pointer:
+			case string:
+				val = cast_any(val, any_t);
+				break;
+			default:;
+			}
+			n += writeValue(fd, sign, val);
 		}
-		return writeValue(fd, sign, val);
+		return n;
+	}
 	case array:{
 		slice_t sli = cast_any(val, slice_t);
-		size_t n = 0;
-		size_t size = get_size((enum SignCh)(*sign));
+		size_t n = writeUint32(fd, (uint32_t)(sli.size));
+		size_t elem = get_size((enum SignCh)(*sign));
 		for(size_t i = 0; i < sli.size; ++i){
-			n += writeValue(fd, sign, sli.p + i * size);
+			n += writeValue(fd, sign, sli.p + i * elem);
 		}
 		return n;
 	}
@@ -104,21 +110,29 @@ size_t writeValue(FILE *fd, const char *sign, any_t val){
 
 size_t writeValueBuf(Buffer *b, const char *sign, any_t val){
 	switch((enum SignCh)(*sign++)){
-	case pointer:
-		switch((enum SignCh)(*sign)){
-		case pointer:
-		case string:
-			val = cast_any(val, any_t);
-			break;
-		default:;
+	case pointer:{
+		bool_t ok = val != NULL;
+		size_t n = 1;
+		writeBoolBuf(b, ok);
+		if(ok){
+			switch((enum SignCh)(*sign)){
+			case pointer:
+			case string:
+				val = cast_any(val, any_t);
+				break;
+			default:;
+			}
+			n += writeValueBuf(b, sign, val);
 		}
-		return writeValueBuf(b, sign, val);
+		return n;
+	}
 	case array:{
 		slice_t sli = cast_any(val, slice_t);
-		size_t n = 0;
-		size_t size = get_size((enum SignCh)(*sign));
+		size_t n = 4;
+		writeUint32Buf(b, (uint32_t)(sli.size));
+		size_t elem = get_size((enum SignCh)(*sign));
 		for(size_t i = 0; i < sli.size; ++i){
-			n += writeValueBuf(b, sign, sli.p + i * size);
+			n += writeValueBuf(b, sign, sli.p + i * elem);
 		}
 		return n;
 	}
@@ -152,7 +166,14 @@ size_t writeValueBuf(Buffer *b, const char *sign, any_t val){
 size_t readValue0(FILE *fd, const char **sign, any_t val){
 	switch((enum SignCh)(*((*sign)++))){
 	case pointer:{
-		return readValue0(fd, sign, *(any_t*)(val) = malloc(get_size((enum SignCh)(**sign))));
+		bool_t ok;
+		size_t n = readBool(fd, &ok);
+		if(!ok){
+			*(any_t*)(val) = NULL;
+		}else{
+			n += readValue0(fd, sign, *(any_t*)(val) = malloc(get_size((enum SignCh)(**sign))));
+		}
+		return n;
 	}
 	case array:{
 		size_t n = 0;
@@ -192,13 +213,59 @@ size_t readValue(FILE *fd, const char *sign, any_t val){
 	return readValue0(fd, &sign, val);
 }
 
-void *readValue1(FILE *fd, const char *sign){
+void *readValue1(FILE *fd, const char *sign, slice_t *ptrs){
 	void *args = malloc(0);
 	size_t size;
 	size_t off = 0;
 	while(*sign && (size = get_size((enum SignCh)(*sign)))){
+		switch((enum SignCh)(*sign)){
+		case pointer:
+		case array:{
+			signed_ptr sp = {
+				.s = sign,
+				.v = (any_t)(off),
+			};
+			slice_append(*ptrs, sp, signed_ptr);
+			break;
+		}
+		default:;
+		}
 		args = realloc(args, off += size);
 		readValue0(fd, &sign, args + off - size);
 	}
 	return args;
+}
+
+void _freeArgsWithSign(void *val, const char **sign){
+	switch((enum SignCh)(*((*sign)++))){
+	case pointer:{
+		if(val != NULL){
+			_freeArgsWithSign(cast_any(val, any_t), sign);
+			free(cast_any(val, any_t));
+		}
+		return;
+	}
+	case array:{
+		size_t elem = get_size((enum SignCh)(*(*sign)++));
+		slice_t sli = cast_any(val, slice_t);
+		for(size_t i = 0; i < sli.size; ++i){
+			_freeArgsWithSign(sli.p + i * elem, sign);
+		}
+		free_slice(sli);
+		return;
+	}
+	case string:
+		free(*(char**)(val));
+		break;
+	default:;
+	}
+}
+
+void freeArgsWithSign(void *args, const char *sign){
+	size_t size;
+	size_t off = 0;
+	while(*sign && (size = get_size((enum SignCh)(*sign)))){
+		_freeArgsWithSign(args + (off += size) - size, &sign);
+	}
+	free(args);
 }

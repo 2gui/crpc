@@ -44,6 +44,7 @@ typedef struct{
 	uint32_t sesid;
 	const char *sign;
 	const any_t val;
+	slice_t ptrs;
 } ReturnCmd;
 cmd_interface wrapReturnCmd(ReturnCmd *p);
 
@@ -55,6 +56,7 @@ typedef struct{
 	uint32_t sesid;
 	uint16_t errid;
 	const char *err;
+	slice_t ptrs;
 } ErrorCmd;
 cmd_interface wrapErrorCmd(ErrorCmd *p);
 

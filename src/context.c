@@ -1,18 +1,56 @@
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "typedef.h"
 #include "command.h"
+#include "encoding.h"
+#include "sign.h"
 #include "point.h"
 #include "context.h"
+
+int callFuncContext(FILE *r, uint32_t sesid, func_t func, struct point_t *p){
+	uint16_t al;
+	readUint16(r, &al);
+	size_t c = signCount(func.sign);
+	if(al != c){
+		fprintf(stderr, "error: arguments length not same, expect %lu but got %d\n", c, al);
+		exit(-1);
+		return -1;
+	}
+	rpc_context ctx = {
+		.args = NULL,
+		.sesid = sesid,
+		.flag = FALSE,
+		.p = p,
+		.ptrs = makeSlice(signed_ptr, 0, c / 2),
+	};
+	if(*func.sign){
+		ctx.args = (rva_list)(readValue1(r, func.sign, &ctx.ptrs));
+	}
+	signed_ptr *sp;
+	for(size_t i = 0; i < ctx.ptrs.size; ++i){
+		sp = slice_at(ctx.ptrs, i, signed_ptr);
+		sp->v += (size_t)(ctx.args);
+	}
+	int code = func.cb(&ctx);
+	if(ctx.args != NULL){
+		freeArgsWithSign(ctx.args, func.sign);
+	}
+	return code;
+}
 
 int rpc_return_c(rpc_context *ctx, const char *sign, const any_t val){
 	if(ctx->flag){
 		return 1;
 	}
 	ctx->flag = TRUE;
+
 	ReturnCmd rc = {
 		.sesid = ctx->sesid,
 		.sign = sign,
 		.val = val,
+		.ptrs = ctx->ptrs,
 	};
 	return pointSendCommand(ctx->p, CmdReturn, wrapReturnCmd(&rc));
 }

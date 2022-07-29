@@ -55,10 +55,23 @@ cmd_interface wrapDefCmd(DefCmd *p){
 int ReturnCmd_writeTo(void *_p, Buffer *b){
 	ReturnCmd *p = (ReturnCmd*)(_p);
 	writeUint32Buf(b, p->sesid);
-	writeBoolBuf(b, p->val != NULL);
-	if(p->val != NULL){
+	bool_t ok = *p->sign != 0;
+	writeBoolBuf(b, ok);
+	if(ok){
 		putStringBuf(b, p->sign);
 		writeValueBuf(b, p->sign, p->val);
+	}
+	writeUint16Buf(b, p->ptrs.size);
+	signed_ptr sp;
+	for(size_t i = 0; i < p->ptrs.size; ++i){
+		sp = slice_get(p->ptrs, i, signed_ptr);
+		switch((enum SignCh)(*sp.s)){
+		case pointer:
+			++sp.s;
+			sp.v = cast_any(sp.v, any_t);
+		default:;
+		}
+		writeValueBuf(b, sp.s, sp.v);
 	}
 	return 0;
 }
@@ -84,6 +97,18 @@ int ErrorCmd_writeTo(void *_p, Buffer *b){
 	writeUint32Buf(b, p->sesid);
 	writeUint16Buf(b, p->errid);
 	writeStringBuf(b, p->err);
+	writeUint16Buf(b, p->ptrs.size);
+	signed_ptr sp;
+	for(size_t i = 0; i < p->ptrs.size; ++i){
+		sp = slice_get(p->ptrs, i, signed_ptr);
+		switch((enum SignCh)(*sp.s)){
+		case pointer:
+			++sp.s;
+			sp.v = cast_any(sp.v, any_t);
+		default:;
+		}
+		writeValueBuf(b, sp.s, sp.v);
+	}
 	return 0;
 }
 
@@ -110,23 +135,6 @@ int parseCallCmd(FILE *r, point_t *p){
 	readUint32(r, &cc.id);
 	readUint32(r, &cc.sesid);
 	func_t func = slice_get(p->funcs, cc.id, func_t);
-	uint16_t l;
-	readUint16(r, &l);
-	size_t c = signCount(func.sign);
-	if(l != c){
-		fprintf(stderr, "error: arguments length not same, except %lu but got %d\n", c, l);
-		exit(-1);
-		return -1;
-	}
-	rpc_context ctx = {
-		.args = NULL,
-		.sesid = cc.sesid,
-		.flag = FALSE,
-		.p = p,
-	};
-	if(*func.sign){
-		ctx.args = (rva_list)(readValue1(r, func.sign));
-	}
-	func.cb(&ctx);
-	return 0;
+	int code = callFuncContext(r, cc.sesid, func, p);
+	return code;
 }
