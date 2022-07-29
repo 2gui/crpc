@@ -39,6 +39,8 @@ int rpc_return_uint8(rpc_context *ctx, uint8_t val);
 int rpc_return_uint16(rpc_context *ctx, uint16_t val);
 int rpc_return_uint32(rpc_context *ctx, uint32_t val);
 int rpc_return_uint64(rpc_context *ctx, uint64_t val);
+int rpc_return_float32(rpc_context *ctx, float32_t val);
+int rpc_return_float64(rpc_context *ctx, float64_t val);
 int rpc_return_string(rpc_context *ctx, const char *str);
 
 int _rpc_error_c(rpc_context *ctx, uint16_t errid, const char *err);

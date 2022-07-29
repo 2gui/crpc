@@ -23,18 +23,14 @@ int callFuncContext(FILE *r, uint32_t sesid, func_t func, struct point_t *p){
 		.sesid = sesid,
 		.flag = FALSE,
 		.p = p,
-		.ptrs = makeSlice(signed_ptr, 0, c / 2),
+		.ptrs = makeSlice(signed_ptr, 0, 2),
 	};
 	if(*func.sign){
 		ctx.args = (rva_list)(readValue1(r, func.sign, &ctx.ptrs));
 	}
-	signed_ptr *sp;
-	for(size_t i = 0; i < ctx.ptrs.size; ++i){
-		sp = slice_at(ctx.ptrs, i, signed_ptr);
-		sp->v += (size_t)(ctx.args);
-	}
 	int code = func.cb(&ctx);
 	if(ctx.args != NULL){
+		free_slice(ctx.ptrs);
 		freeArgsWithSign(ctx.args, func.sign);
 	}
 	return code;
@@ -85,6 +81,14 @@ int rpc_return_uint32(rpc_context *ctx, uint32_t val){
 
 int rpc_return_uint64(rpc_context *ctx, uint64_t val){
 	return rpc_return_c(ctx, "Q", &val);
+}
+
+int rpc_return_float32(rpc_context *ctx, float32_t val){
+	return rpc_return_c(ctx, "F", &val);
+}
+
+int rpc_return_float64(rpc_context *ctx, float64_t val){
+	return rpc_return_c(ctx, "D", &val);
 }
 
 int rpc_return_string(rpc_context *ctx, const char *str){

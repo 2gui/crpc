@@ -29,26 +29,25 @@ typedef void *any_t;
 typedef struct{
 	size_t size;
 	size_t cap;
-	void* p;
+	void *p;
 } slice_t;
 
-slice_t _newSlice(size_t elem, size_t size, size_t cap);
-#define makeSlice(t, size, cap) _newSlice(sizeof(t), size, cap)
-
-#define slice_at(s, i, t) ((t*)((s).p) + i * sizeof(t))
-#define slice_get(s, i, t) (*(t*)((s).p + i * sizeof(t)))
-#define slice_set(s, i, e, t) (*(t*)((s).p + i * sizeof(t)) = e)
+slice_t _makeSlice(size_t elem, size_t size, size_t cap);
+#define makeSlice(t, size, cap) _makeSlice(sizeof(t), size, cap)
+#define slice_at(s, i, t) ((t*)(s).p + (i))
+#define slice_get(s, i, t) (*slice_at(s, i, t))
+#define slice_set(s, i, e, t) (*slice_at(s, i, t) = e)
 #define slice_append(s, e, t) do{ \
 	if((s).size == (s).cap){        \
 		if((s).cap < 1024){           \
-			(s).cap = (s).cap / 2 * 3;  \
+			(s).cap = (s).cap / 2 * 3 + 1;\
 		}else{                        \
 			(s).cap += 1024;            \
 		}                             \
 		(s).p = realloc((s).p, (s).cap * sizeof(t));\
 	}                               \
 	slice_set(s, (s).size, e, t);   \
-	++(s).size;                     \
+	++((s).size);                   \
 }while(0)
 #define free_slice(s) do{ if((s).p != NULL){ free((s).p); (s).p = NULL; } }while(0)
 

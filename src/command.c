@@ -62,16 +62,10 @@ int ReturnCmd_writeTo(void *_p, Buffer *b){
 		writeValueBuf(b, p->sign, p->val);
 	}
 	writeUint16Buf(b, p->ptrs.size);
-	signed_ptr sp;
+	signed_ptr *sp;
 	for(size_t i = 0; i < p->ptrs.size; ++i){
-		sp = slice_get(p->ptrs, i, signed_ptr);
-		switch((enum SignCh)(*sp.s)){
-		case pointer:
-			++sp.s;
-			sp.v = cast_any(sp.v, any_t);
-		default:;
-		}
-		writeValueBuf(b, sp.s, sp.v);
+		sp = slice_at(p->ptrs, i, signed_ptr);
+		writeValueBuf(b, sp->s, sp->v);
 	}
 	return 0;
 }
@@ -101,12 +95,6 @@ int ErrorCmd_writeTo(void *_p, Buffer *b){
 	signed_ptr sp;
 	for(size_t i = 0; i < p->ptrs.size; ++i){
 		sp = slice_get(p->ptrs, i, signed_ptr);
-		switch((enum SignCh)(*sp.s)){
-		case pointer:
-			++sp.s;
-			sp.v = cast_any(sp.v, any_t);
-		default:;
-		}
 		writeValueBuf(b, sp.s, sp.v);
 	}
 	return 0;
