@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "platform.h"
 #include "encoding.h"
 #include "typedef.h"
 #include "buffer.h"
@@ -68,7 +69,7 @@ void writeFloat64Buf(Buffer *b, float64_t v){
 	b->size += 8;
 }
 
-size_t writeStringBuf(Buffer *b, const char *s){
+void writeStringBuf(Buffer *b, const char *s){
 	const size_t l = strlen(s);
 	writeUint32Buf(b, (uint32_t)(l));
 	if(l){
@@ -76,8 +77,47 @@ size_t writeStringBuf(Buffer *b, const char *s){
 		memcpy(b->p + b->size, s, l);
 		b->size += l;
 	}
-	return 4 + l;
+	return;
 }
+
+
+bool_t readBoolBuf(Buffer *b){
+	return (b->p[b->rd++] != 0)?TRUE :FALSE;
+}
+
+uint8_t readUint8Buf(Buffer *b){
+	return b->p[b->rd++];
+}
+
+uint16_t readUint16Buf(Buffer *b){
+	return decodeUint16(b->p + (b->rd += 2) - 2);
+}
+
+uint32_t readUint32Buf(Buffer *b){
+	return decodeUint32(b->p + (b->rd += 4) - 4);
+}
+
+uint64_t readUint64Buf(Buffer *b){
+	return decodeUint64(b->p + (b->rd += 8) - 8);
+}
+
+float32_t readFloat32Buf(Buffer *b){
+	return decodeFloat32(b->p + (b->rd += 4) - 4);
+}
+
+float64_t readFloat64Buf(Buffer *b){
+	return decodeFloat64(b->p + (b->rd += 8) - 8);
+}
+
+size_t readStringBuf(Buffer *b, const char **s){
+	uint32_t size = readUint32Buf(b);
+	char *t = malloc(size + 1);
+	t[size] = 0;
+	memcpy(t, b->p + (b->rd += size) - size, size);
+	*s = t;
+	return size;
+}
+
 
 size_t putStringBuf(Buffer *b, const char *s){
 	const size_t l = strlen(s);
@@ -89,12 +129,17 @@ size_t putStringBuf(Buffer *b, const char *s){
 	return l;
 }
 
+void getStringBuf(Buffer *b, char **s, size_t size){
+	memcpy(*s, b->p + (b->rd += size) - size, size);
+}
+
 size_t writeBufTo(Buffer *b, FILE *fd){
 	return fwrite(b->p, 1, b->size, fd);
 }
 
 size_t readBufFrom(Buffer *b, FILE *fd, size_t size){
 	growBuffer(b, size);
+	b->rd = 0;
 	b->size = fread(b->p, 1, size, fd);
 	return b->size;
 }

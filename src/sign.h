@@ -30,11 +30,11 @@ typedef struct{
 size_t get_size(enum SignCh t);
 size_t signCount(const char *sign);
 
-size_t writeValueBuf(Buffer *b, const char *sign, any_t val);
+void writeValueBuf(Buffer *b, const char *sign, any_t val);
 
-size_t readValue0(FILE *fd, const char **sign, any_t val);
-size_t readValue(FILE *fd, const char *sign, any_t val);
-void *readValue1(FILE *fd, const char *sign, slice_t *ptrs);
+void readValue0(Buffer *b, const char **sign, any_t val);
+void readValue(Buffer *b, const char *sign, any_t val);
+void *readValue1(Buffer *b, const char *sign, slice_t *ptrs);
 
 void freeArgsWithSign(void *args, const char *sign);
 

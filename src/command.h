@@ -13,8 +13,11 @@ const uint8_t CmdCall;
 const uint8_t CmdReturn;
 const uint8_t CmdError;
 
+struct point_t;
+
 typedef struct{
 	int (*writeTo)(void *p, Buffer *w);
+	int (*readFrom)(Buffer *b, struct point_t *p);
 } cmd_methods_t;
 
 typedef struct{
@@ -22,6 +25,11 @@ typedef struct{
 	const cmd_methods_t* m;
 } cmd_interface;
 
+
+typedef struct{
+	uint64_t d;
+} PingCmd;
+cmd_interface wrapPingCmd(PingCmd *p);
 
 typedef struct{
 	uint64_t d;
@@ -39,11 +47,12 @@ typedef struct{
 	uint32_t sesid;
 	void *args;
 } CallCmd;
+cmd_interface wrapCallCmd(CallCmd *p);
 
 typedef struct{
 	uint32_t sesid;
 	const char *sign;
-	const any_t val;
+	any_t val;
 	slice_t ptrs;
 } ReturnCmd;
 cmd_interface wrapReturnCmd(ReturnCmd *p);
@@ -59,10 +68,5 @@ typedef struct{
 	slice_t ptrs;
 } ErrorCmd;
 cmd_interface wrapErrorCmd(ErrorCmd *p);
-
-struct point_t;
-
-int parsePingCmd(FILE *r, struct point_t *p);
-int parseCallCmd(FILE *r, struct point_t *p);
 
 #endif // __COMMAND_H__

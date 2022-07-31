@@ -2,38 +2,67 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "platform.h"
 #include "typedef.h"
 #include "command.h"
 #include "encoding.h"
 #include "sign.h"
 #include "point.h"
+#include "thread.h"
 #include "context.h"
 
-int callFuncContext(FILE *r, uint32_t sesid, func_t func, struct point_t *p){
-	uint16_t al;
-	readUint16(r, &al);
-	size_t c = signCount(func.sign);
-	if(al != c){
-		fprintf(stderr, "error: arguments length not same, expect %lu but got %d\n", c, al);
-		exit(-1);
-		return -1;
+const uint32_t SesCall = (1 << 16) - 1;
+const uint32_t SesThread = ~SesCall;
+
+int readFuncContext(Buffer *r, rpc_context *ctx){
+	size_t al = (size_t)(readUint16Buf(r));
+	if(al != ctx->func->count){
+		fprintf(stderr, "error: arguments length not same, expect '%s'(%lu) but got %zu\n", ctx->func->sign, ctx->func->count, al);
+		exit(1);
+		return 1;
 	}
-	rpc_context ctx = {
-		.args = NULL,
-		.sesid = sesid,
-		.flag = FALSE,
-		.p = p,
-		.ptrs = makeSlice(signed_ptr, 0, 2),
-	};
-	if(*func.sign){
-		ctx.args = (rva_list)(readValue1(r, func.sign, &ctx.ptrs));
+	ctx->flag = FALSE;
+	if(*ctx->func->sign){
+		ctx->ptrs = makeSlice(signed_ptr, 0, al / 2 + 1);
+		ctx->args = (rva_list)(readValue1(r, ctx->func->sign, &ctx->ptrs));
+	}else{
+		debugf("set ctx->ptrs nil");
+		ctx->ptrs.size = 0;
+		ctx->ptrs.cap = 0;
+		ctx->args = NULL;
 	}
-	int code = func.cb(&ctx);
-	if(ctx.args != NULL){
-		free_slice(ctx.ptrs);
-		freeArgsWithSign(ctx.args, func.sign);
+	return 0;
+}
+
+int executeContext(rpc_context *ctx){
+	int code;
+	uint16_t tid = (uint16_t)(ctx->sesid >> 16);
+	if(tid){
+		assert(FALSE, "TODO");
+		queue *que = point_get_thread(ctx->p, tid);
+		if(que == NULL){
+			return 4;
+		}
+		queue_put(que, ctx);
+	}else{
+		debugf("callbacking");
+		code = ctx->func->cb(ctx);
+		debugf("called, cleaning");
+		cleanContext(ctx);
+		debugf("freeing ctx");
+		free(ctx);
 	}
 	return code;
+}
+
+int cleanContext(rpc_context *ctx){
+	debugf("clean ctx ptrs %p", ctx->ptrs.p);
+	clean_slice(ctx->ptrs);
+	debugf("cleaning ctx args");
+	if(ctx->args != NULL){
+		freeArgsWithSign(ctx->args, ctx->func->sign);
+	}
+	return 0;
 }
 
 int rpc_return_c(rpc_context *ctx, const char *sign, const any_t val){
@@ -49,6 +78,10 @@ int rpc_return_c(rpc_context *ctx, const char *sign, const any_t val){
 		.ptrs = ctx->ptrs,
 	};
 	return pointSendCommand(ctx->p, CmdReturn, wrapReturnCmd(&rc));
+}
+
+int rpc_return_bool(rpc_context *ctx, bool_t val){
+	return rpc_return_c(ctx, "A", &val);
 }
 
 int rpc_return_int8(rpc_context *ctx, int8_t val){

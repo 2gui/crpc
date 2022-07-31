@@ -113,12 +113,24 @@
 					"shell_cmd": "make -j8 src/sign.s",
 				},
 				{
+					"name": "src/thread.o",
+					"shell_cmd": "make -j8 src/thread.o",
+				},
+				{
+					"name": "src/thread.i",
+					"shell_cmd": "make -j8 src/thread.i",
+				},
+				{
+					"name": "src/thread.s",
+					"shell_cmd": "make -j8 src/thread.s",
+				},
+				{
 					"name": "src/typedef.o",
-					"shell_cmd": "make -j8 src/typedef.o",
+					"shell_cmd": "make -j8 src/typedef.o"
 				},
 				{
 					"name": "src/typedef.i",
-					"shell_cmd": "make -j8 src/typedef.i",
+					"shell_cmd": "make -j8 src/typedef.i"
 				},
 				{
 					"name": "src/typedef.s",

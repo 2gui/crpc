@@ -1,6 +1,4 @@
 
-#include <stdio.h>
-
 #include "typedef.h"
 #include "encoding.h"
 #include "buffer.h"
@@ -55,57 +53,58 @@ size_t signCount(const char *sign){
 		case int64:
 		case float64:
 			++c;
+			break;
+		default:
+			return 0;
 		}
 	}
 	return c;
 }
 
-size_t writeValueBuf(Buffer *b, const char *sign, any_t val){
+void writeValueBuf(Buffer *b, const char *sign, any_t val){
 	switch((enum SignCh)(*sign++)){
 	case pointer:{
 		bool_t ok = val != NULL;
-		size_t n = 1;
 		writeBoolBuf(b, ok);
 		if(ok){
-			n += writeValueBuf(b, sign, cast_any(val, any_t));
+			writeValueBuf(b, sign, cast_any(val, any_t));
 		}
-		return n;
+		return;
 	}
 	case array:{
 		slice_t sli = cast_any(val, slice_t);
-		size_t n = 4;
 		writeUint32Buf(b, (uint32_t)(sli.size));
 		size_t elem = get_size((enum SignCh)(*sign));
 		for(size_t i = 0; i < sli.size; ++i){
-			n += writeValueBuf(b, sign, sli.p + i * elem);
+			writeValueBuf(b, sign, sli.p + i * elem);
 		}
-		return n;
+		return;
 	}
 	case string:
-		return writeStringBuf(b, cast_any(val, char*));
+		writeStringBuf(b, cast_any(val, char*));
+		return;
 	case bool:
 		writeBoolBuf(b, cast_any(val, bool_t));
-		return 1;
+		return;
 	case uint8:
 	case int8:
 		writeUint8Buf(b, cast_any(val, uint8_t));
-		return 1;
+		return;
 	case uint16:
 	case int16:
 		writeUint16Buf(b, cast_any(val, uint16_t));
-		return 2;
+		return;
 	case uint32:
 	case int32:
 	case float32:
 		writeUint32Buf(b, cast_any(val, uint32_t));
-		return 4;
+		return;
 	case uint64:
 	case int64:
 	case float64:
 		writeUint64Buf(b, cast_any(val, uint64_t));
-		return 8;
+		return;
 	}
-	return 0;
 }
 
 void _skipSign(const char **sign){
@@ -131,59 +130,63 @@ void _skipSign(const char **sign){
 	}
 }
 
-size_t readValue0(FILE *fd, const char **sign, any_t val){
+void readValue0(Buffer *b, const char **sign, any_t val){
 	switch((enum SignCh)(*(*sign)++)){
 	case pointer:{
-		bool_t ok;
-		size_t n = readBool(fd, &ok);
+		bool_t ok = readBoolBuf(b);
 		if(!ok){
 			*(any_t*)(val) = NULL;
 			_skipSign(sign);
 		}else{
-			n += readValue0(fd, sign, *(any_t*)(val) = malloc(get_size((enum SignCh)(**sign))));
+			readValue0(b, sign, *(any_t*)(val) = malloc(get_size((enum SignCh)(**sign))));
 		}
-		return n;
+		return;
 	}
 	case array:{
-		size_t n = 0;
-		uint32_t size;
-		readUint32(fd, &size);
+		uint32_t size = readUint32Buf(b);
 		size_t elem = get_size((enum SignCh)(*(*sign)++));
 		slice_t sli = _makeSlice(elem, size, size);
 		*(slice_t *)(val) = sli;
 		for(size_t i = 0; i < size; ++i){
-			n += readValue0(fd, sign, sli.p + i * elem);
+			readValue0(b, sign, sli.p + i * elem);
 		}
-		return n;
+		return;
 	}
-	case string:
-		return readString(fd, (char**)(val));
+	case string:{
+		readStringBuf(b, (const char**)(val));
+		return;
+	}
 	case bool:
-		return readBool(fd, (bool_t*)(val));
+		*(bool_t*)(val) = readBoolBuf(b);
+		return;
 	case uint8:
 	case int8:
-		return readUint8(fd, (uint8_t*)(val));
+		*(uint8_t*)(val) = readUint8Buf(b);
+		return;
 	case uint16:
 	case int16:
-		return readUint16(fd, (uint16_t*)(val));
+		*(uint16_t*)(val) = readUint16Buf(b);
+		return;
 	case uint32:
 	case int32:
 	case float32:
-		return readUint32(fd, (uint32_t*)(val));
+		*(uint32_t*)(val) = readUint32Buf(b);
+		return;
 	case uint64:
 	case int64:
 	case float64:
-		return readUint64(fd, (uint64_t*)(val));
+		*(uint64_t*)(val) = readUint64Buf(b);
+		return;
 	}
-	return 0;
+	return;
 }
 
-size_t readValue(FILE *fd, const char *sign, any_t val){
-	return readValue0(fd, &sign, val);
+void readValue(Buffer *b, const char *sign, any_t val){
+	readValue0(b, &sign, val);
 }
 
-void *readValue1(FILE *fd, const char *sign, slice_t *ptrs){
-	void *args = malloc(0);
+void *readValue1(Buffer *b, const char *sign, slice_t *ptrs){
+	void *args = NULL;
 	void *t;
 	const char *st;
 	size_t size;
@@ -191,7 +194,7 @@ void *readValue1(FILE *fd, const char *sign, slice_t *ptrs){
 	while(*sign && (size = get_size((enum SignCh)(*sign)))){
 		st = sign;
 		args = realloc(args, off += size);
-		readValue0(fd, &sign, t = (args + off - size));
+		readValue0(b, &sign, t = (args + off - size));
 		switch((enum SignCh)(*st)){
 		case pointer:
 			if(cast_any(t, any_t) == NULL){
@@ -204,7 +207,6 @@ void *readValue1(FILE *fd, const char *sign, slice_t *ptrs){
 				.v = (any_t)(off - size),
 			};
 			slice_append(*ptrs, sp, signed_ptr);
-			signed_ptr *pp = slice_at(*ptrs, ptrs->size - 1, signed_ptr);
 			break;
 		}
 		default:;
@@ -240,7 +242,7 @@ void _freeArgsWithSign(void *val, const char **sign){
 		for(size_t i = 0; i < sli.size; ++i){
 			_freeArgsWithSign(sli.p + i * elem, sign);
 		}
-		free_slice(sli);
+		clean_slice(sli);
 		return;
 	}
 	case string:
