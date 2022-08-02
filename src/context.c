@@ -128,7 +128,7 @@ int rpc_return_string(rpc_context *ctx, const char *str){
 	return rpc_return_c(ctx, "S", (any_t)(str));
 }
 
-int _rpc_error_c(rpc_context *ctx, uint16_t errid, const char *err){
+int _rpc_error_c(rpc_context *ctx, ErrID errid, const char *err){
 	if(ctx->flag){
 		return 1;
 	}

@@ -40,8 +40,6 @@ int pointRegisterMethod(point_t *p, const char *name, const char *sign, rpc_call
 	assert(!*sign || func.count != 0, "Unexpect method sign '%s'", sign);
 	debugf("registed method: %s(%s)", name, sign);
 	slice_append(p->funcs, func, func_t);
-	func_t *fcp = slice_at(p->funcs, 3, func_t);
-	debugf("fcp: %d %p %p %s %zu", 3, fcp, fcp->sign, fcp->sign, fcp->count);
 	DefCmd dc = {
 		.name = name,
 		.id = id,
@@ -49,7 +47,7 @@ int pointRegisterMethod(point_t *p, const char *name, const char *sign, rpc_call
 	return pointSendCommand(p, CmdDef, wrapDefCmd(&dc));
 }
 
-int pointSendCommand(point_t *p, uint8_t id, cmd_interface cmd){
+int pointSendCommand(point_t *p, CmdID id, cmd_interface cmd){
 	Buffer _buf = makeBuffer(0, 256);
 	Buffer *buf = &_buf;
 	writeUint8Buf(buf, id);
@@ -61,7 +59,7 @@ int pointSendCommand(point_t *p, uint8_t id, cmd_interface cmd){
 
 int pointListen(point_t *p){
 	uint32_t l;
-	uint8_t id;
+	CmdID id;
 	size_t n;
 #ifdef DEBUG
 	bool_t dflg = TRUE;
@@ -94,10 +92,12 @@ int pointListen(point_t *p){
 }
 
 queue *point_get_thread(point_t *p, uint16_t tid){
+	assert(FALSE, "TODO");
 	return NULL;
 }
 
 void point_stop_thread(point_t *p, uint16_t tid){
+	assert(FALSE, "TODO");
 	queue *que = point_get_thread(p, tid);
 	if(que != NULL){
 		//

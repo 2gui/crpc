@@ -19,7 +19,7 @@ typedef struct point_t{
 
 point_t *newPoint(FILE *r, FILE *w);
 int pointRegisterMethod(point_t *p, const char *name, const char *sign, rpc_callback cb);
-int pointSendCommand(point_t *p, uint8_t id, cmd_interface cmd);
+int pointSendCommand(point_t *p, CmdID id, cmd_interface cmd);
 int pointListen(point_t *p);
 uint16_t point_new_thread(point_t *p);
 queue *point_get_thread(point_t *p, uint16_t tid);

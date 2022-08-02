@@ -9,7 +9,7 @@
 #define TRUE 1
 #define FALSE 0
 
-typedef char bool_t;
+typedef unsigned char bool_t;
 
 typedef signed char int8_t;
 typedef short int int16_t;
@@ -28,9 +28,9 @@ typedef void *any_t;
 #define cast_any(v, t) (*(t*)((any_t)(v)))
 
 typedef struct{
+	void *p;
 	size_t size;
 	size_t cap;
-	void *p;
 } slice_t;
 
 slice_t _makeSlice(size_t elem, size_t size, size_t cap);
@@ -59,5 +59,7 @@ slice_t _makeSlice(size_t elem, size_t size, size_t cap);
 	++((s).size);                   \
 }while(0)
 #define clean_slice(s) do{ if((s).p && (s).cap){ (s).cap = ((s).size = 0); free((s).p); (s).p = NULL; } }while(0)
+
+size_t *slice_to_sizes(slice_t sli, size_t *target);
 
 #endif // __TYPE_DEF_H__

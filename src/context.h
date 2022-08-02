@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "typedef.h"
+#include "command.h"
 
 struct point_t;
 
@@ -53,7 +54,8 @@ int rpc_return_float32(rpc_context *ctx, float32_t val);
 int rpc_return_float64(rpc_context *ctx, float64_t val);
 int rpc_return_string(rpc_context *ctx, const char *str);
 
-int _rpc_error_c(rpc_context *ctx, uint16_t errid, const char *err);
-#define rpc_error_c(ctx, err) _rpc_error_c(ctx, ErrString, err)
+int _rpc_error_c(rpc_context *ctx, ErrID errid, const char *err);
+#define rpc_error(ctx, err) _rpc_error_c(ctx, ErrString, err)
+#define rpc_error_c(ctx, id, err) _rpc_error_c(ctx, ErrCustom | (ErrCustomMask & (ErrID)(id)), err)
 
 #endif // __CONTEXT_H__

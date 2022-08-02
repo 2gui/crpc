@@ -6,12 +6,22 @@
 
 #include "buffer.h"
 
-const uint8_t CmdPing;
-const uint8_t CmdPong;
-const uint8_t CmdDef;
-const uint8_t CmdCall;
-const uint8_t CmdReturn;
-const uint8_t CmdError;
+#define CmdID uint8_t
+#define ErrID uint64_t
+
+const CmdID CmdPing;
+const CmdID CmdPong;
+const CmdID CmdDef;
+const CmdID CmdCall;
+const CmdID CmdReturn;
+const CmdID CmdError;
+
+const ErrID ErrString;
+const ErrID ErrNotExists;
+const ErrID ErrArgs;
+const ErrID ErrCustom;
+const ErrID ErrIdMask;
+const ErrID ErrCustomMask;
 
 struct point_t;
 
@@ -57,13 +67,9 @@ typedef struct{
 } ReturnCmd;
 cmd_interface wrapReturnCmd(ReturnCmd *p);
 
-const uint16_t ErrString;
-const uint16_t ErrNotExists;
-const uint16_t ErrArgs;
-
 typedef struct{
 	uint32_t sesid;
-	uint16_t errid;
+	ErrID errid;
 	const char *err;
 	slice_t ptrs;
 } ErrorCmd;

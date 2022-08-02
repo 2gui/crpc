@@ -10,12 +10,19 @@
 #include "point.h"
 #include "command.h"
 
-const uint8_t CmdPing   = 0x00;
-const uint8_t CmdPong   = 0x01;
-const uint8_t CmdDef    = 0x02;
-const uint8_t CmdCall   = 0x03;
-const uint8_t CmdReturn = 0x04;
-const uint8_t CmdError  = 0x05;
+const CmdID CmdPing   = 0x00;
+const CmdID CmdPong   = 0x01;
+const CmdID CmdDef    = 0x02;
+const CmdID CmdCall   = 0x03;
+const CmdID CmdReturn = 0x04;
+const CmdID CmdError  = 0x05;
+
+const ErrID ErrString    = 0x00l << 32;
+const ErrID ErrNotExists = 0x01l << 32;
+const ErrID ErrArgs      = 0x02l << 32;
+const ErrID ErrCustom    = 0xffl << 32;
+const ErrID ErrIdMask     = 0xffffffffl << 32;
+const ErrID ErrCustomMask = ~ErrIdMask;
 
 #define _commandIWrapper(Type) cmd_interface wrap##Type(Type *p){\
 	static const cmd_methods_t _##Type##M = {\
@@ -112,8 +119,6 @@ int ReturnCmd_writeTo(void *_p, Buffer *b){
 		putStringBuf(b, p->sign);
 		writeValueBuf(b, p->sign, p->val);
 	}
-	debugf("p %p", p);
-	debugf("p->ptrs %p %zu", p->ptrs.p, p->ptrs.size);
 	writeUint16Buf(b, p->ptrs.size);
 	signed_ptr *sp;
 	for(size_t i = 0; i < p->ptrs.size; ++i){
@@ -130,14 +135,10 @@ int ReturnCmd_readFrom(Buffer *b, point_t *p){
 
 _commandIWrapper(ReturnCmd)
 
-const uint16_t ErrString    = 0x00;
-const uint16_t ErrNotExists = 0x01;
-const uint16_t ErrArgs      = 0x02;
-
 int ErrorCmd_writeTo(void *_p, Buffer *b){
 	ErrorCmd *p = _p;
 	writeUint32Buf(b, p->sesid);
-	writeUint16Buf(b, p->errid);
+	writeUint64Buf(b, p->errid);
 	writeStringBuf(b, p->err);
 	writeUint16Buf(b, p->ptrs.size);
 	signed_ptr sp;
@@ -149,7 +150,12 @@ int ErrorCmd_writeTo(void *_p, Buffer *b){
 }
 
 int ErrorCmd_readFrom(Buffer *b, point_t *p){
-	assert(FALSE, "TODO");
+	assert(FALSE, "TODO ErrorCmd.readFrom");
+	ErrorCmd c;
+	c.sesid = readUint32Buf(b);
+	c.errid = readUint64Buf(b);
+	readStringBuf(b, &c.err);
+	free((void*)(c.err));
 	return 0;
 }
 

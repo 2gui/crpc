@@ -64,7 +64,7 @@ int error_test(rpc_context *ctx){
 	rva_list vl = ctx->args;
 	args = rva_arg(vl, slice_t);
 	printf("erroring: %zu\n", args.size);
-	rpc_error_c(ctx, "test error");
+	rpc_error(ctx, "test error");
 	return 0;
 }
 
